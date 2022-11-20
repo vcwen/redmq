@@ -1,0 +1,12 @@
+.*
+coverage/
+dist/
+node_modules/
+src/
+test/
+jest.config.cjs
+tsconfig.json
+tsconfig.build.json
+pnpm-lock.yaml
+
+
