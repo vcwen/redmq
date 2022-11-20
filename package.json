@@ -3,7 +3,10 @@
   "version": "0.0.2",
   "type": "module",
   "description": "simple message queue based on Redis streams",
-  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
+  },
   "repository": "https://github.com/vcwen/caterpillar.git",
   "author": "vincent.wen <wenwei1202@gmail.com>",
   "license": "MIT",
