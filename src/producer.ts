@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 import { Payload } from './message.js'
 import Debug from 'debug'
 
-const debug = Debug('caterpillar:producer')
+const debug = Debug('redmq:producer')
 
 export class Producer {
   private connection: Redis.Redis

@@ -4,7 +4,7 @@ import { Payload, Message, PendingMessageMetadata } from './message.js'
 import Debug from 'debug'
 import { sleep } from './utils.js'
 import { EventEmitter } from 'events'
-const debug = Debug('caterpillar:consumer')
+const debug = Debug('redmq:consumer')
 
 const DEFAULT_PULL_INTERVAL = 200
 const DEFAULT_STALE_MESSAGE_PULL_INTERVAL = 1000
