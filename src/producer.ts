@@ -1,5 +1,4 @@
 import Redis from 'ioredis'
-import { Payload } from './message.js'
 import Debug from 'debug'
 
 const debug = Debug('redmq:producer')
@@ -9,9 +8,9 @@ export class Producer {
   constructor(connection: Redis.Redis) {
     this.connection = connection
   }
-  public async produce(
+  public async send(
     topic: string,
-    payload: Payload,
+    payload: unknown,
     options?: { maxLen?: number }
   ): Promise<string> {
     const val = JSON.stringify(payload)

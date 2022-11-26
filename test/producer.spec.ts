@@ -1,5 +1,4 @@
 import { Producer } from '../src/producer.js'
-import { Payload } from '../src/message.js'
 
 describe('Producer', () => {
   it('should be able to create an instance', () => {
@@ -14,8 +13,8 @@ describe('Producer', () => {
     const xadd = jest.fn()
     connection.xadd = xadd
     const producer = new Producer(connection)
-    const payload = new Payload({ bar: 'zee' })
-    await producer.produce('foo', payload)
+    const payload = { bar: 'zee' }
+    await producer.send('foo', payload)
     expect(xadd).toHaveBeenCalledWith(
       'foo',
       '*',
@@ -30,8 +29,8 @@ describe('Producer', () => {
     const xadd = jest.fn()
     connection.xadd = xadd
     const producer = new Producer(connection)
-    const payload = new Payload({ bar: 'zee' })
-    await producer.produce('foo', payload, { maxLen: 100 })
+    const payload = { bar: 'zee' }
+    await producer.send('foo', payload, { maxLen: 100 })
     expect(xadd).toHaveBeenCalledWith(
       'foo',
       'MAXLEN',

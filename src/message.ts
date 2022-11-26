@@ -1,7 +1,3 @@
-export class Payload {
-  constructor(public body: unknown, public header?: Record<string, unknown>) {}
-}
-
 export class PendingMessageMetadata {
   constructor(
     public id: string,
@@ -11,15 +7,13 @@ export class PendingMessageMetadata {
   ) {}
 }
 
-export class Message {
+export class Message<T = unknown> {
   public id: string
   public topic: string
-  public header?: Record<string, unknown>
-  public body: unknown
-  constructor(id: string, topic: string, payload: Payload) {
+  public payload: T
+  constructor(id: string, topic: string, payload: T) {
     this.id = id
     this.topic = topic
-    this.header = payload.header
-    this.body = payload.body
+    this.payload = payload
   }
 }

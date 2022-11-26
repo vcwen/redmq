@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
 import _ from 'lodash'
-import { Payload, Message, PendingMessageMetadata } from './message.js'
+import { Message, PendingMessageMetadata } from './message.js'
 import Debug from 'debug'
 import { sleep } from './utils.js'
 import { EventEmitter } from 'events'
@@ -246,7 +246,7 @@ export class Consumer {
       if (prop !== 'payload') {
         throw new Error('invalid message data')
       }
-      const payload: Payload = JSON.parse(payloadStr)
+      const payload = JSON.parse(payloadStr)
       return new Message(id, topic, payload)
     } catch (err) {
       debug(
