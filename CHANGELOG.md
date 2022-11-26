@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/vcwen/redmq/compare/v0.0.3...v0.0.6) (2022-11-26)
+
+
+### Features
+
+* procuder.produce -> send, message payload to be generic type ([42a340c](https://github.com/vcwen/redmq/commit/42a340ca91bb77b34dde91cbb944cb9a9a983fbb))
+
 ### [0.0.3](https://github.com/vcwen/redmq/compare/v0.0.2...v0.0.3) (2022-11-20)
 
 
