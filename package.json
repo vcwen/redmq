@@ -7,7 +7,7 @@
     "import": "./dist/esm/index.js",
     "require": "./dist/cjs/index.js"
   },
-  "types": "./dist/esm/index.d.ts",
+  "types": "./dist/cjs/index.d.ts",
   "repository": "https://github.com/vcwen/redmq.git",
   "author": "vincent.wen <wenwei1202@gmail.com>",
   "license": "MIT",
@@ -34,7 +34,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc -p tsconfig.build.json",
-    "build-cjs": "tsc -p tsconfig.cjs.json"
+    "build:cjs": "tsc -p tsconfig.cjs.json"
   },
   "engines": {
     "node": ">=16"

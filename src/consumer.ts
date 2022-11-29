@@ -8,11 +8,21 @@ const debug = Debug('redmq:consumer')
 
 const DEFAULT_PULL_INTERVAL = 200
 const DEFAULT_STALE_MESSAGE_PULL_INTERVAL = 1000
+const DEFAULT_MAX_DELIVER_TIMES = 3
+const DEFAULT_MESSAGE_TIMEOUT = 10000
+const DEFAULT_BATCH_SIZE = 1
+
+export interface ConsumerOptions {
+  timeout?: number
+  batchSize?: number
+  maxDeliverTimes?: number
+}
 
 export class Consumer {
   private connection: Redis.Redis
   public batchSize: number
   public timeout: number
+  private maxDeliverTimes: number
   private topics: string[]
   private eventEmitter = new EventEmitter()
   private isTerminated = false
@@ -22,33 +32,33 @@ export class Consumer {
     private group: string,
     topics: string[],
     private readonly onMessage: (message: Message) => Promise<unknown>,
-    options?: {
-      timeout?: number
-      batchSize?: number
-    }
+    options?: ConsumerOptions
   ) {
     this.topics = topics
-    this.timeout = options?.timeout ?? 10000
-    this.batchSize = options?.batchSize ?? 1
+    this.timeout = options?.timeout ?? DEFAULT_MESSAGE_TIMEOUT
+    this.batchSize = options?.batchSize ?? DEFAULT_BATCH_SIZE
+    this.maxDeliverTimes = options?.maxDeliverTimes ?? DEFAULT_MAX_DELIVER_TIMES
     this.connection = connection
   }
 
   public on(
-    event: 'error' | 'message:failed',
+    event: 'error' | 'message:error' | 'message:abandon',
     listener: (...args: unknown[]) => void
   ): EventEmitter {
     return this.eventEmitter.on(event, listener)
   }
-  public async startConsuming(): Promise<void> {
+  public async start(): Promise<void> {
     await this.createGroup(this.group)
-    await this.consumePendingMessages()
-    debug('%s:start consuming new messages', this.getConsumerInfo())
-    this.consumeNewMessages()
-    debug('%s:watch stale messages', this.getConsumerInfo())
-    this.watchStaleMessages()
+    debug('%s:start consuming pending messages', this.getConsumerInfo())
+    this.consumePendingMessages().finally(() => {
+      debug('%s:start consuming new messages', this.getConsumerInfo())
+      this.consumeNewMessages()
+      debug('%s:watch stale messages', this.getConsumerInfo())
+      this.watchStaleMessages()
+    })
   }
 
-  public stopConsuming(): void {
+  public stop(): void {
     this.isTerminated = true
   }
 
@@ -183,17 +193,26 @@ export class Consumer {
             )
         )
         lastId = metadataList[metadataList.length - 1].id
-
+        const messageIds = metadataList.map((item) => item.id)
+        if (_.isEmpty(messageIds)) {
+          return
+        }
         try {
           const rawMessages = await this.connection.xclaim(
             topic,
             this.group,
             this.id,
             this.timeout,
-            ...metadataList.map((item) => item.id)
+            ...messageIds
           )
           const messages = rawMessages
-            .map((item) => this.parseMessage(topic, item))
+            .map((item, index) => {
+              const msg = this.parseMessage(topic, item)
+              if (msg) {
+                msg.metadata.deliverTimes = metadataList[index].deliverTimes
+              }
+              return msg
+            })
             .filter((item) => item !== null) as Message[]
           await this.consumeMessages(topic, messages)
         } catch (err) {
@@ -255,8 +274,7 @@ export class Consumer {
         rawMessage
       )
       this.eventEmitter.emit('error', err, {
-        type: 'raw-message',
-        data: rawMessage
+        rawMessage
       })
       return null
     }
@@ -269,20 +287,28 @@ export class Consumer {
     const tasks = messages.map(async (message) => {
       try {
         await this.onMessage(message)
-        return message.id
+        return message
       } catch (err) {
         debug('failed to handle message: %o, reason:%s', message, err)
-        this.eventEmitter.emit('message:failed', err, {
-          type: 'message',
-          data: message
+        this.eventEmitter.emit('message:error', err, {
+          message
         })
+        if (message.metadata.deliverTimes >= this.maxDeliverTimes) {
+          // max deliver times reached, should ack the message
+          this.eventEmitter.emit('message:abandon', err, {
+            message
+          })
+          return message
+        } else {
+          throw err
+        }
       }
     })
     const results = await Promise.allSettled(tasks)
     const completedMessageIds: string[] = []
     results.forEach((res) => {
-      if (res.status === 'fulfilled' && res.value) {
-        completedMessageIds.push(res.value)
+      if (res.status === 'fulfilled') {
+        completedMessageIds.push(res.value.id)
       }
     })
     if (!_.isEmpty(completedMessageIds)) {

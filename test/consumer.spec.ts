@@ -42,10 +42,10 @@ describe('Consumer', () => {
     const consumer = new Consumer(connection, id, group, topics, onMessage)
     const onError = jest.fn()
     consumer.on('error', onError)
-    await consumer.startConsuming()
+    await consumer.start()
 
     await sleep(1000)
-    consumer.stopConsuming()
+    consumer.stop()
     expect(onError).not.toHaveBeenCalled()
   })
   it('should ignore duplicate group errors', async () => {
@@ -71,8 +71,8 @@ describe('Consumer', () => {
     const consumer = new Consumer(connection, id, group, topics, onMessage)
     const onError = jest.fn()
     try {
-      await consumer.startConsuming()
-      await consumer.stopConsuming()
+      await consumer.start()
+      await consumer.stop()
     } catch (err) {
       onError(err)
     }
@@ -100,7 +100,7 @@ describe('Consumer', () => {
     const topics = ['foo', 'bar']
     // [string, [string, string[]][]][]
     const consumer = new Consumer(connection, id, group, topics, onMessage)
-    await expect(async () => consumer.startConsuming()).rejects.toThrowError()
+    await expect(async () => consumer.start()).rejects.toThrowError()
   })
 
   it('should start consume messages', async () => {
@@ -126,8 +126,9 @@ describe('Consumer', () => {
         // do thing
       }
     )
-    await consumer.startConsuming()
-    expect(consumer).toBeInstanceOf(Consumer)
+    await consumer.start()
+    await sleep(500)
+    consumer.stop()
     const timeout = consumer.timeout
     const batchSize = consumer.batchSize
     for (let i = 0; i < topics.length; i++) {
@@ -217,9 +218,9 @@ describe('Consumer', () => {
       ]
     ])
     const consumer = new Consumer(connection, id, group, topics, onMessage)
-    await consumer.startConsuming()
+    await consumer.start()
     await sleep(100)
-    consumer.stopConsuming()
+    consumer.stop()
     const batchSize = consumer.batchSize
     for (let i = 0; i < topics.length; i++) {
       expect(xreadgroup).toHaveBeenCalledWith(
@@ -294,7 +295,9 @@ describe('Consumer', () => {
     // [string, [string, string[]][]][]
 
     const consumer = new Consumer(connection, id, group, topics, onMessage)
-    await consumer.startConsuming()
+    await consumer.start()
+    await sleep(500)
+    consumer.stop()
     const batchSize = consumer.batchSize
     for (let i = 0; i < topics.length; i++) {
       expect(xreadgroup).toHaveBeenNthCalledWith(
@@ -321,7 +324,7 @@ describe('Consumer', () => {
       )
     }
     await sleep(1000)
-    consumer.stopConsuming()
+    consumer.stop()
     expect(onMessage).toBeCalledWith(
       new Message('id-1', topics[0], { body: 'message content ' + topics[0] })
     )
@@ -352,7 +355,9 @@ describe('Consumer', () => {
     const topics = ['foo', 'bar']
     // [string, [string, string[]][]][]
     const consumer = new Consumer(connection, id, group, topics, onMessage)
-    await consumer.startConsuming()
+    await consumer.start()
+    await sleep(500)
+    consumer.stop()
     const timeout = consumer.timeout
     const batchSize = consumer.batchSize
     for (const topic of topics) {
@@ -369,11 +374,10 @@ describe('Consumer', () => {
     }
 
     await sleep(1000)
-    consumer.stopConsuming()
+    consumer.stop()
     for (const topic of topics) {
-      expect(onMessage).toHaveBeenCalledWith(
-        new Message('msg-id-1', topic, payload)
-      )
+      const msg = new Message('msg-id-1', topic, payload)
+      expect(onMessage).toHaveBeenCalledWith(msg)
     }
   })
 
@@ -403,10 +407,10 @@ describe('Consumer', () => {
     ])
     const consumer = new Consumer(connection, id, group, topics, onMessage)
     consumer.on('error', onError)
-    await consumer.startConsuming()
+    await consumer.start()
 
     await sleep(500)
-    consumer.stopConsuming()
+    consumer.stop()
     expect(onError).toHaveBeenCalledTimes(2)
   })
 
@@ -443,11 +447,11 @@ describe('Consumer', () => {
       ]
     ])
     const consumer = new Consumer(connection, id, group, topics, onMessage)
-    consumer.on('message:failed', onError)
-    await consumer.startConsuming()
+    consumer.on('message:error', onError)
+    await consumer.start()
 
     await sleep(500)
-    consumer.stopConsuming()
+    consumer.stop()
     expect(onError).toHaveBeenCalledTimes(2)
   })
 })

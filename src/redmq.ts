@@ -1,5 +1,5 @@
 import Redis, { RedisOptions } from 'ioredis'
-import { Consumer } from './consumer.js'
+import { Consumer, ConsumerOptions } from './consumer.js'
 import { Message } from './message.js'
 import { Producer } from './producer.js'
 
@@ -24,9 +24,7 @@ export class RedMQ {
     group: string,
     topics: string[],
     onMessage: (message: Message) => Promise<unknown>,
-    options?: {
-      timeout?: number
-      batchSize?: number
+    options?: ConsumerOptions & {
       shareConnection?: boolean
     }
   ): Consumer {

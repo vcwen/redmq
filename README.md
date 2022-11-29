@@ -15,14 +15,14 @@ npm install redmq
 ### Usage
 
 ```typescript
-import {RedMQ} from 'redmq'
+import { RedMQ } from 'redmq'
 
 
 const redmq = new RedMQ('id')
 
 // producer
 const producer = redmq.producer()
-producer.produce('my-topic', { body: 'body content' })
+producer.send('my-topic', { body: 'body content' })
 
 // consumer
 const consumer = redmq.consumer(
@@ -33,7 +33,7 @@ const consumer = redmq.consumer(
   }
 )
 
-consumer.startConsuming()
+consumer.start()
 ```
 
 ### Topic
@@ -47,6 +47,14 @@ Producer is simple and straightforward, the `maxLen` options is used for a cappe
 ### Consumer
 
 Consumers use pull strategy for fetching new messages, for the messages that are not processed successfully will be retried after a specific time.
+
+Options:
+
+- **timeout:** message will be redelivered if timeout is reached
+  
+- **batchSize:** how many messages will be fetched in one time for a consumer
+  
+- **maxDeliverTimes:** the message will be abandon if the max deliver times reached
 
 ### Connection
 
