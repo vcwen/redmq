@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/vcwen/redmq/compare/v0.0.6...v0.0.7) (2022-11-29)
+
+
+### Features
+
+* **consumer:** add maxDeliverTimes option ([9c90bb9](https://github.com/vcwen/redmq/commit/9c90bb92841955e431e8dbced9fc0ea99e42a176))
+
 ### [0.0.6](https://github.com/vcwen/redmq/compare/v0.0.3...v0.0.6) (2022-11-26)
 
 
