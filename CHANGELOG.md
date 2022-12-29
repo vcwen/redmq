@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/vcwen/redmq/compare/v0.0.7...v0.0.8) (2022-12-29)
+
+
+### Bug Fixes
+
+* **consumer:** remove IDLE option for xpending to support Redis v5 ([e252e3c](https://github.com/vcwen/redmq/commit/e252e3cf81d290633864cb511d25df11e5bb070c))
+
 ### [0.0.7](https://github.com/vcwen/redmq/compare/v0.0.6...v0.0.7) (2022-11-29)
 
 
