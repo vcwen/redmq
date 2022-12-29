@@ -173,8 +173,8 @@ export class Consumer {
           await this.connection.xpending(
             topic,
             this.group,
-            'IDLE',
-            this.timeout,
+            // 'IDLE',
+            // this.timeout,
             lastId,
             '+',
             this.batchSize
@@ -193,7 +193,9 @@ export class Consumer {
             )
         )
         lastId = metadataList[metadataList.length - 1].id
-        const messageIds = metadataList.map((item) => item.id)
+        const messageIds = metadataList
+          .filter((item) => item.timeElapsed > this.timeout)
+          .map((item) => item.id)
         if (_.isEmpty(messageIds)) {
           return
         }

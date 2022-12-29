@@ -144,8 +144,8 @@ describe('Consumer', () => {
         i + 1,
         topics[i],
         group,
-        'IDLE',
-        timeout,
+        // 'IDLE',
+        // timeout,
         '-',
         '+',
         batchSize
@@ -364,8 +364,8 @@ describe('Consumer', () => {
       expect(xpending).toHaveBeenCalledWith(
         topic,
         group,
-        'IDLE',
-        timeout,
+        // 'IDLE',
+        // timeout,
         '-',
         '+',
         batchSize
